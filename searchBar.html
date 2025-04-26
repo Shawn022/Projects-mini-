@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            background:rgb(255, 192, 74);
+            font-family:Arial, Helvetica, sans-serif;
+            font-weight:500;
+        }
+        .search-form{
+            background-color: rgb(249, 249, 249);
+            padding:35px;
+            display:flex;
+            width:60vw;
+            margin:auto;
+            justify-content: center;
+            align-items: center;
+            flex-direction:column;
+            border-radius:15px;
+        }
+        label{
+            font-size:30px;
+        }
+        .search{
+            height:30px;
+            padding:3px;
+            width:40vw;
+            border:1px solid black;
+            border-radius:5px;
+            font-size:18px;
+            margin-bottom:10px;
+        }
+        .search:hover{
+            border:1px solid green;
+        }
+        .Display{
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content: center;
+            width:100vw;
+            min-width:600px;
+            margin-left:-40px;
+            
+        }
+        .Display li{
+            display:flex;
+            background-color: rgb(249, 249, 249);
+            border:1px solid black;
+            border-bottom: 0;
+            width:60vw;
+            padding:20px;
+            border-radius:1px;
+            justify-content: space-between;
+            margin:auto;
+        }
+        .Display li:last-of-type{
+            border-bottom:1px solid black;
+        }
+        .hl{
+            background:rgb(255, 192, 74);
+
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="search-form">
+            <label for="search">Enter Address</label>
+            <input type="text" class="search" name="search">
+            <ul class="Display">
+
+            </ul>
+
+    </div>
+    
+
+
+
+<script>
+const endpoint='https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json'
+        
+const cities=[];
+
+fetch(endpoint)
+.then(blob => blob.json())
+.then(data => cities.push(...data))
+    
+console.log(cities);
+
+function findMatches(wordToMatch,cities){
+    return cities.filter(place => {
+        //here we need to figure out if the city or state matches what was searched
+        const regex=new RegExp(wordToMatch,'gi');//regex= /something/gi
+        return place.city.match(regex) || place.state.match(regex);
+    } )
+}
+
+function displayMatches(){
+    // console.log(this.value);
+    if(this.value==''){
+        document.querySelector('.Display').innerHTML='';
+        return;
+    }
+    const matches=findMatches(this.value,cities);
+    const html=matches.map(place => {
+        const regex=new RegExp(this.value,'gi');
+        const cityName=place.city.replace(regex,`<span class='hl'>${this.value}</span>`);
+        const stateName=place.state.replace(regex,`<span class='hl'>${this.value}</span>`);
+        
+        return `
+           <li>
+              <span class='name'>${cityName}, ${stateName}</span>
+              <span class='population'>${place.population}</span> 
+           </li>
+        `;
+    }).join('');
+    document.querySelector('.Display').innerHTML=html;
+};
+
+const searchInput=document.querySelector('.search');
+// const suggestions=document.querySelector('.suggestions');
+const suggestions=document.querySelector('.search');
+
+searchInput.addEventListener('change',displayMatches);
+suggestions.addEventListener('keyup',displayMatches);
+
+
+
+</script>
+</body>
+</html>
